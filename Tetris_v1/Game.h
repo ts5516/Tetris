@@ -31,9 +31,8 @@ public:
 	void gameExit();
 	void gameRestart();
 
-	bool keyInputProcess(KEYCODE key);
 
-	bool blockDownReqularInterval();
+	bool keyInputProcess(KEYCODE key);
 
 	void checkGameProgress();
 
@@ -41,7 +40,6 @@ public:
 	void gameTimerUpdate();
 	void gameSpeedUpdate();
 	void gameInfoUpdate();
-	
 	void gametimeAdd1();
 private:
 	Screen screen;

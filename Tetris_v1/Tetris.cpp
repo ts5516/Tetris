@@ -244,8 +244,27 @@ bool Tetris::blockTouchBottom()
 		int ypos = block.position[i].Y + 1;
 		if (map[ypos][xpos] < 0)
 			return true;
-	}
+	} 
 	return false;
+}
+
+bool Tetris::hardDrop()
+{
+	eraseBlockPastTrace();
+
+	block.position = block.ghostpiecePosition;
+	
+	destroyBlock();
+	
+	return true;
+}
+
+void Tetris::eraseBlockPastTrace()
+{
+	for (int i = 0; i < TILE_NUM; i++)
+	{
+		map[block.position[i].Y][block.position[i].X] = 0;
+	}
 }
 
 void Tetris::drawGhostPiece()

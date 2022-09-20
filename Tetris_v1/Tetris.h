@@ -133,6 +133,7 @@ public:
 
 	bool blockTouchBottom();
 
+	bool hardDrop();
 
 	void drawGhostPiece();
 
@@ -142,7 +143,7 @@ public:
 	bool moveBlock(const Point& p);
 	bool rotateBlockRight();
 
-
+	void eraseBlockPastTrace();
 
 	void destroyBlock();
 	void createBlock();

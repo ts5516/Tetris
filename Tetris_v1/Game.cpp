@@ -46,8 +46,6 @@ void Game::gameUpdate(KEYCODE key)
 	
 	gameUpdateToken = gameUpdateToken || keyInputProcess(key);
 
-	gameUpdateToken = gameUpdateToken || blockDownReqularInterval();
-
 	gameInfoUpdate();
 
 	checkGameProgress();
@@ -63,17 +61,6 @@ void Game::gameRender()
 		screen.screenPrintTextInfo(infoBoard);
 		screen.screenPrintNextBlock(tetris.getNextBlockBoard());
 		gameUpdateToken = false;
-	}
-}
-
-bool Game::blockDownReqularInterval()
-{
-	nowTime = clock();
-	if (state == GAMESTATE::PLAYING && nowTime - blockDownTime >= 1000 / speed)
-	{
-		blockDownTime = nowTime;
-
-		return keyInputProcess(KEYCODE::DOWN);
 	}
 }
 
@@ -97,6 +84,21 @@ bool Game::keyInputProcess(KEYCODE key)
 			return tetris.moveBlock({ 0,-1 });
 		else if (key == KEYCODE::RIGHT)
 			return tetris.moveBlock({ 0,1 });
+		else if (key == KEYCODE::SPACE)
+		{
+			tetris.hardDrop();
+
+			int eraseLine = tetris.eraseLine();
+			if (eraseLine > 0)
+			{
+				gameScoreUpdate(eraseLine);
+			}
+			waitTime = clock();
+			state = GAMESTATE::WAIT;
+			
+			return true;
+		}
+			
 		// input function 
 	}
 
@@ -126,6 +128,11 @@ void Game::checkGameProgress()
 			}
 			
 		}
+		else if(nowTime - blockDownTime >= 1000 / speed)
+		{
+			blockDownTime = nowTime;
+			keyInputProcess(KEYCODE::DOWN);
+		}
 		break;
 	case GAMESTATE::LOCKDELAY:
 		
@@ -141,10 +148,11 @@ void Game::checkGameProgress()
 		}
 		break;
 	case GAMESTATE::WAIT:
-		if (nowTime - waitTime > 200)
+		if (nowTime - waitTime > 100)
 		{
 			tetris.createBlock();
 			state = GAMESTATE::PLAYING;
+			blockDownTime = nowTime;
 		}
 		break;
 	}

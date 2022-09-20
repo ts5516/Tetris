@@ -14,7 +14,7 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+*.dllgit
 
 # Fortran module files
 *.mod

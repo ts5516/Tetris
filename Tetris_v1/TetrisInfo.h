@@ -10,7 +10,7 @@ using namespace std;
 
 enum BLOCKTYPE
 {
-	NONE = 0,
+	NONE = -1,
 	I,
 	L,
 	J,

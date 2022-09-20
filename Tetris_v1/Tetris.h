@@ -12,6 +12,7 @@ using namespace std;
 
 enum COLORTYPE
 {
+	NOCOLOR = 0,
 	RED = 4,
 	PURPLE = 5,
 	ORANGE = 6,
@@ -19,22 +20,6 @@ enum COLORTYPE
 	GREEN = 10,
 	SKY = 11,
 	YELLOW = 14
-};
-
-enum MOVE
-{
-	UP = 0,
-	DOWN,
-	LEFT,
-	RIGHT,
-	ROTATE
-};
-
-enum TOUCH
-{
-	NOTOUCH = (0x01<<0),
-	BOTTOM = (0x01<<1),
-	SIDE = (0x01<<2)
 };
 
 struct Point
@@ -52,23 +37,74 @@ struct Point
 		this->X = X;
 	}
 
+	Point(pair<int, int> point)
+	{
+		this->Y = point.first;
+		this->X = point.second;
+	}
+
 	bool operator==(const Point& p) const
 	{
 		return X == p.X && Y == p.Y;
 	}
+
+	Point& operator+=(const Point& p)
+	{
+		this->Y += p.Y;
+		this->X += p.X;
+
+		return *this;
+	}
+
+	Point operator+(const Point& p)
+	{
+		return Point(this->Y + p.Y, this->X + p.X);
+	}
 };
 
-typedef struct 
+struct Tetromino
 {
 	BLOCKTYPE type;
 	vector<Point> position;
 	vector<Point> rotation;
+	vector<Point> ghostpiecePosition;
 	int color;
-} Tetromino;
+
+	Tetromino()
+		:type(BLOCKTYPE::NONE),
+		position({ {0,0},{0,0},{0,0},{0,0} }),
+		rotation({ {0,0},{0,0},{0,0},{0,0} }),
+		ghostpiecePosition({ {0,0},{0,0},{0,0},{0,0} }),
+		color(COLORTYPE::NOCOLOR)
+	{	}
+
+	Tetromino(BLOCKTYPE type, vector<Point> position,
+		vector<Point> rotation, int color)
+		:type(type),
+		position(position),
+		rotation(rotation),
+		ghostpiecePosition({ {0,0},{0,0},{0,0},{0,0} }),
+		color(color)
+	{	}
+
+	bool operator==(const Tetromino& tet)
+	{
+		return this->type == tet.type &&
+			this->position == tet.position &&
+			this->rotation == tet.rotation &&
+			this->ghostpiecePosition == tet.ghostpiecePosition &&
+			this->color == tet.color;
+	}
+};
+
 
 const int BOARD_ROW = 22, BOARD_COL = 12;
 const int NEXTBLOCKBOARD_ROW = 4, NEXTBLOCKBOARD_COL = 6;
+
+
 const int TETROMINO_NUM = 7;
+const int TILE_NUM = 4;
+
 
 class Tetris
 {
@@ -92,32 +128,35 @@ public:
 	}
 
 	
-	bool checkMoveBlock(MOVE move);
-	bool checkRotateBlock(pair<int, int>& wallKick);
+	bool canBlockPutThisPoints(vector<Point> points);
+	Tetromino canRotateBlock();
 
-
-	int blockTouchWall(MOVE move);
 	bool blockTouchBottom();
-	bool blockMoveSide(MOVE move);
 
 
 	void drawGhostPiece();
-	void eraseGhostPiece();
 
 	int eraseLine();
 	bool eraseOneLine(int line);
 
-	bool moveBlock(MOVE move);
-	bool rotationBlock();
+	bool moveBlock(const Point& p);
+	bool rotateBlockRight();
+
+
+
 	void destroyBlock();
 	void createBlock();
 	void createNextBlock();
 
 
-	vector<Point> rotateMatrix(vector<Point> matrix);
-	vector<Point> moveMatrix(pair<int, int> move, vector<Point> matrix);
+	vector<Point> rotatePoints(const vector<Point>& points);
+	vector<Point> movePoints(const Point& move, const vector<Point>& points);
 
-	bool mapIndexBlockCanExist(vector<Point> index);
+	Point getTranslateDistance()
+	{
+		return { block.position[0].Y - block.rotation[0].Y,
+			block.position[0].X - block.rotation[0].X };
+	}
 
 	Tetromino getBlock()
 	{
@@ -135,14 +174,14 @@ public:
 private:
 	TetrisInfo tetrisInfo;
 
-	Tetromino I_;
-	Tetromino L_;
-	Tetromino J_;
-	Tetromino O_;
-	Tetromino S_;
-	Tetromino T_;
-	Tetromino Z_;
-	Tetromino tetrominos[TETROMINO_NUM] = { I_, L_, J_, O_, S_, T_, Z_ };
+	const Tetromino I_;
+	const Tetromino L_;
+	const Tetromino J_;
+	const Tetromino O_;
+	const Tetromino S_;
+	const Tetromino T_;
+	const Tetromino Z_;
+	const Tetromino tetrominos[TETROMINO_NUM] = { I_, L_, J_, O_, S_, T_, Z_ };
 
 	vector<vector<int>> map;
 	vector<vector<int>> nextBlockBoard;

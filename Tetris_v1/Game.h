@@ -3,6 +3,8 @@
 #include <ctime>
 #include "Screen.h"
 #include "Tetris.h"
+#include "Input.h"
+
 #ifndef GAME_H_
 #define GAME_H_
 
@@ -15,7 +17,7 @@ enum GAMESTATE
 	PAUSE,
 	LOCKDELAY,
 	WAIT,
-	END
+	GAMEOVER
 };
 
 class Game
@@ -24,22 +26,31 @@ public:
 	Game();
 
 	void gameInit();
-	void gameUpdate(int input);
-	bool gameInfoUpdate();
+	void gameUpdate(KEYCODE key);
 	void gameRender();
 	void gameExit();
 	void gameRestart();
 
-	void gameTimerUpdate(int second);
+	bool keyInputProcess(KEYCODE key);
 
+	bool blockDownReqularInterval();
+
+	void checkGameProgress();
+
+	void gameScoreUpdate(int eraseLine);
+	void gameTimerUpdate();
+	void gameSpeedUpdate();
+	void gameInfoUpdate();
+	
+	void gametimeAdd1();
 private:
 	Screen screen;
 	Tetris tetris;
 	TetrisInfo tetrisInfo;
-	int input;
+
 
 	GAMESTATE state;
-
+	bool gameUpdateToken;
 
 	int speed;
 	int score;
@@ -47,10 +58,11 @@ private:
 
 
 	clock_t nowTime;
-	clock_t renderTime;
+	clock_t LockDelayTime;
+	clock_t blockDownTime;
 	clock_t gameRunTime;
+	clock_t waitTime;
 
 	vector<vector<string>> infoBoard;
-
 };
 #endif // !GAME_H_

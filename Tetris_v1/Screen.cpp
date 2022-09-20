@@ -23,23 +23,18 @@ Screen::~Screen()
 
 void Screen::screenInitialize(vector<vector<int>> board)
 {
-	for (int i = 0; i < board.size(); i++)
+	for (short i = 0; i < board.size(); i++)
 	{
-		for (int j = 0; j < board[0].size(); j++)
+		for (short j = 0; j < board[0].size(); j++)
 		{
 			if (board[i][j] == -1)
 			{
-				COORD pos = { (short)j * 2,(short)i };
+				COORD pos = { j * 2, i };
 				printToken(workBufferIndex, pos, 0, WALL);
 				printToken(1-workBufferIndex, pos, 0, WALL);
 			}
 		}
 	}
-}
-
-void Screen::screenRender(vector<vector<int>> board)
-{
-	
 }
 
 void Screen::screenFlip()
@@ -51,11 +46,11 @@ void Screen::screenFlip()
 
 void Screen::screenUpdate(vector<vector<int>> board)
 {
-	for (int i = 0; i < board.size(); i++)
+	for (short i = 0; i < board.size(); i++)
 	{
-		for (int j = 0; j < board[0].size(); j++)
+		for (short j = 0; j < board[0].size(); j++)
 		{
-			COORD pos = { (short)j * 2,(short)i };
+			COORD pos = { j * 2, i };
 			int tile = board[i][j];
 			if (tile == 1)
 			{
@@ -86,11 +81,11 @@ void Screen::showCursor(bool showFlag, HANDLE out)
 
 void Screen::screenClean(vector<vector<int>> board)
 {
-	for (int i = 0; i < board.size(); i++)
+	for (short i = 0; i < board.size(); i++)
 	{
-		for (int j = 0; j < board[0].size(); j++)
+		for (short j = 0; j < board[0].size(); j++)
 		{
-			COORD pos = { (short)j * 2,(short)i };
+			COORD pos = { j * 2, i };
 			printToken(workBufferIndex, pos, 0, BLANK);
 		}
 	}
@@ -102,9 +97,7 @@ void Screen::screenPrintTextInfo(vector<vector<string>> infoBoard)
 	{
 		for (int j = 0; j < infoBoard[0].size(); j++)
 		{
-			short xpos = 25 + j*2;
-			short ypos = 1 + i;
-			COORD pos = { xpos, ypos };
+			COORD pos = { 25 + j * 2, 1 + i };
 			printToken(workBufferIndex, pos, 7, infoBoard[i][j]);
 			printToken(1 - workBufferIndex, pos, 7, infoBoard[i][j]);
 		}
@@ -117,9 +110,7 @@ void Screen::screenPrintNextBlock(vector<vector<int>> nextBlockBoard)
 	{
 		for (int j = 0; j < nextBlockBoard[0].size(); j++)
 		{
-			short xpos = j*2 + 26;
-			short ypos = i + 3;
-			COORD pos = { xpos,ypos };
+			COORD pos = { j * 2 + 26, i + 3 };
 			int tile = nextBlockBoard[i][j];
 			SetConsoleCursorPosition(
 				screenHandle[workBufferIndex], pos);
@@ -128,7 +119,7 @@ void Screen::screenPrintNextBlock(vector<vector<int>> nextBlockBoard)
 				printToken(workBufferIndex, pos, 7, WALL);
 				printToken(1 - workBufferIndex, pos, 7, WALL);
 			}
-			if (tile > 0)
+			else if (tile > 0)
 			{
 				printToken(workBufferIndex, pos, abs(tile), BRICK);
 				printToken(1 - workBufferIndex, pos, abs(tile), BRICK);

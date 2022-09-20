@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <cmath>
-#include "Tetris.h"
 #ifndef SCREEN_H_
 #define SCREEN_H_
 
@@ -24,7 +23,6 @@ public:
 	~Screen();
 
 	void screenInitialize(vector<vector<int>> board);
-	void screenRender(vector<vector<int>> board);
 	void screenUpdate(vector<vector<int>> board);
 	void screenFlip();
 	void screenClean(vector<vector<int>> board);

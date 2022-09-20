@@ -75,7 +75,7 @@ void Tetris::createBlock()
 
 	block = nextBlock;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < TILE_NUM; i++)
 	{
 		block.position[i].X += BOARD_COL / 2 -2;
 		//block.position[i][0] += 1;
@@ -90,18 +90,20 @@ void Tetris::createNextBlock()
 {
 	if (existBlock(nextBlock))
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < TILE_NUM; i++)
 		{
 			nextBlockBoard[nextBlock.position[i].Y][nextBlock.position[i].X] = 0;
 		}
 	}
+
+	//generator
 	srand(time(NULL));
 	int shape = rand() % 7;
 
 	nextBlock = tetrominos[shape];
 
 	
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < TILE_NUM; i++)
 	{
 		nextBlock.position[i].Y += 1;
 		nextBlock.position[i].X += 1;
@@ -109,205 +111,134 @@ void Tetris::createNextBlock()
 	}
 }
 
-bool Tetris::moveBlock(MOVE move)
-{
-	if (checkMoveBlock(move))
-		return false;
-
-
-	for (int i = 0; i < 4; i++)
-	{
-		map[block.position[i].Y][block.position[i].X] = 0;
-	}
-
-	for (int i = 0; i < 4; i++)
-	{
-		if (move == MOVE::DOWN)
-		{
-			block.position[i].Y += 1;
-		}
-
-		else if (move == MOVE::LEFT)
-		{
-			block.position[i].X -= 1;
-		}
-
-		else if (move == MOVE::RIGHT)
-		{
-			block.position[i].X += 1;
-		}
-
-		map[block.position[i].Y][block.position[i].X] = block.color;
-	}
-
-	return true;
-}
-
-bool Tetris::rotationBlock()
-{
-	for (int i = 0; i < 4; i++)
-	{
-		map[block.position[i].Y][block.position[i].X] = 0;
-	}
-
-	pair<int, int> wallKick = { 0,0 };
-	if (!checkRotateBlock(wallKick))
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			map[block.position[i].Y][block.position[i].X] = block.color;
-		}
-		return false;
-	}
-		
-
-	int translateY = block.position[0].Y - block.rotation[0].Y;
-	int translateX = block.position[0].X - block.rotation[0].X;
-
-	
-
-	int size = 2;
-	if (block.type == BLOCKTYPE::I)
-		size = 3;
-
-
-	for (int i = 0; i < 4; i++)
-	{
-		int xpos = block.rotation[i].X;
-		block.rotation[i].X = size - block.rotation[i].Y;
-		block.rotation[i].Y = xpos;
-
-		block.position[i].Y = block.rotation[i].Y + translateY + wallKick.second;
-		block.position[i].X = block.rotation[i].X + translateX + wallKick.first;
-
-		map[block.position[i].Y][block.position[i].X] = block.color;
-	}
-
-	return true;
-}
-
 void Tetris::destroyBlock()
 {
-	block.type = BLOCKTYPE::NONE;
+	if (!existBlock(block))
+		return;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < TILE_NUM; i++)
 	{
 		map[block.position[i].Y][block.position[i].X]
 			= -block.color;
 	}
+
+	block = Tetromino();
 }
 
-bool Tetris::checkMoveBlock(MOVE move)
+bool Tetris::moveBlock(const Point& p)
 {
-	int xdir = 0, ydir = 0;
+	vector<Point> _position = block.position;
 
-	if (move == MOVE::DOWN)
+	for (int i = 0; i < TILE_NUM; i++)
 	{
-		xdir = 0, ydir = 1;
-	}
-	else if (move == MOVE::LEFT)
-	{
-		xdir = -1, ydir = 0;
-	}
-	else if (move == MOVE::RIGHT)
-	{
-		xdir = 1, ydir = 0;
+		_position[i] += p;
 	}
 
-	for (int i = 0; i < 4; i++)
-	{
-		int xpos = block.position[i].X + xdir;
-		int ypos = block.position[i].Y + ydir;
-		if (map[ypos][xpos] < 0)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool Tetris::checkRotateBlock(pair<int, int>& wallKick)
-{
-	if (block.type == BLOCKTYPE::O)
+	if (!canBlockPutThisPoints(_position))
 		return false;
 
-
-	int rotateState = 0;
-	vector<Point> matrix = block.rotation;
-
-	Tetromino compareBlock = I_;
-	for (int i = 0; i < TETROMINO_NUM; i++)
+	for (int i = 0; i < TILE_NUM; i++)
 	{
-		if (block.type == tetrominos[i].type)
-			compareBlock = tetrominos[i];
+		map[block.position[i].Y][block.position[i].X] = 0;
+	}
+	for (int i = 0; i < TILE_NUM; i++)
+	{
+		map[_position[i].Y][_position[i].X] = block.color;
 	}
 
+	block.position = _position;
+
+	return true;
+}
+
+bool Tetris::rotateBlockRight()
+{
+	Tetromino _block = canRotateBlock();
+	if (_block.type == BLOCKTYPE::NONE)
+	{
+		return false;
+	}
+		
+	Point translate = getTranslateDistance();
+
+	for (int i = 0; i < TILE_NUM; i++)
+	{
+		map[block.position[i].Y][block.position[i].X] = 0;
+	}
+
+	for (int i = 0; i < TILE_NUM; i++)
+	{
+		map[_block.position[i].Y][_block.position[i].X] = block.color;
+	}
+
+	block = _block;
+
+	return true;
+}
+
+Tetromino Tetris::canRotateBlock()
+{
+	if (block.type == BLOCKTYPE::O)
+		return Tetromino();
+
+	int rotateState = 0;
+	vector<Point> rotationPoints = block.rotation;
+	Tetromino rotationBlock = block;
+	Tetromino compareBlock = tetrominos[block.type];
+	
 	for (int n = 0; n < 4; n++)
 	{
-		if (matrix == compareBlock.rotation)
+		if (rotationBlock.rotation == compareBlock.rotation)
 		{
-			rotateState = n==0 ? 0 : 4 - n;
+			rotateState = n;
 			break;
 		}
 
-		matrix = rotateMatrix(matrix);
+		compareBlock.rotation = rotatePoints(compareBlock.rotation);
 	}
 
 	vector<pair<int, int>> wallKickData = 
 		tetrisInfo.getSRSwallKickData(block.type, rotateState);
 
-	
-	int translateY = block.position[0].Y - block.rotation[0].Y;
-	int translateX = block.position[0].X - block.rotation[0].X;
+	Point translateDist = getTranslateDistance();
 
 	for (int i = 0; i < wallKickData.size(); i++)
 	{
-		matrix = rotateMatrix(block.rotation);
-		matrix = moveMatrix(wallKickData[i], matrix);
-		matrix = moveMatrix(make_pair(translateX, translateY), matrix);
+		Point p = { wallKickData[i].second + translateDist.Y,
+			wallKickData[i].first + translateDist.X };
 
-		if (mapIndexBlockCanExist(matrix))
+		rotationBlock.rotation = rotatePoints(block.rotation);
+		rotationBlock.position = movePoints(p, rotationBlock.rotation);
+
+		if (canBlockPutThisPoints(rotationBlock.position))
 		{
-			wallKick = wallKickData[i];
-			return true;
+			return rotationBlock;
 		}
 
 	}
 
-	return false;
+	return Tetromino();
 }
 
-bool Tetris::mapIndexBlockCanExist(vector<Point> index)
+bool Tetris::canBlockPutThisPoints(vector<Point> points)
 {
-	
-	for (int i = 0; i < index.size(); i++)
+	for (int i = 0; i < points.size(); i++)
 	{
-		if (index[i].Y < 0 || index[i].X < 0 || index[i].Y >= BOARD_ROW || index[i].X >= BOARD_COL)
+		if (points[i].Y < 0 || points[i].X < 0 ||
+			points[i].Y >= BOARD_ROW || points[i].X >= BOARD_COL)
 			return false;
-		else if (map[index[i].Y][index[i].X] != 0)
+		else if (map[points[i].Y][points[i].X] < 0)
 			return false;
 	}
 	return true;
 }
 
-int Tetris::blockTouchWall(MOVE move)
-{
-	if (blockTouchBottom())
-	{
-		if (blockMoveSide(move))
-			return TOUCH::BOTTOM | TOUCH::SIDE;
-		else
-			return TOUCH::BOTTOM;
-	}
-	else if (blockMoveSide(move))
-		return TOUCH::SIDE;
-
-	return TOUCH::NOTOUCH;
-}
-
 bool Tetris::blockTouchBottom()
 {
-	for (int i = 0; i < 4; i++)
+	if (block == Tetromino())
+		return false;
+
+	for (int i = 0; i < TILE_NUM; i++)
 	{
 		int xpos = block.position[i].X;
 		int ypos = block.position[i].Y + 1;
@@ -317,44 +248,15 @@ bool Tetris::blockTouchBottom()
 	return false;
 }
 
-bool Tetris::blockMoveSide(MOVE move)
-{
-	int xdir = 0, ydir = 0;
-
-	if (move == MOVE::LEFT)
-	{
-		xdir = -1, ydir = 0;
-	}
-	else if (move == MOVE::RIGHT)
-	{
-		xdir = 1, ydir = 0;
-	}
-
-	for (int i = 0; i < 4; i++)
-	{
-		int xpos = block.position[i].X + xdir;
-		int ypos = block.position[i].Y + ydir;
-		if (map[ypos][xpos] < 0)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 void Tetris::drawGhostPiece()
 {
-	for (int i = 1; i < BOARD_COL; i++)
+	if (!existBlock(block))
+		return;
+
+	for (int i = 0; i < TILE_NUM; i++)
 	{
-		for (int j = 1; j < BOARD_ROW; j++)
-		{
-			int xpos = i;
-			int ypos = j;
-			if (map[ypos][xpos] == 1)
-			{
-				map[ypos][xpos] = 0;
-			}
-		}
+		if(map[block.ghostpiecePosition[i].Y][block.ghostpiecePosition[i].X] == 1)
+			map[block.ghostpiecePosition[i].Y][block.ghostpiecePosition[i].X] = 0;
 	}
 
 	for (int i = 0; i < BOARD_ROW; i++)
@@ -367,30 +269,15 @@ void Tetris::drawGhostPiece()
 			{
 				for (int k = 0; k < 4; k++)
 				{
-					int nxpos = block.position[k].X;
-					int nypos = block.position[k].Y + i - 1;
+					block.ghostpiecePosition[k].X = block.position[k].X;
+					block.ghostpiecePosition[k].Y = block.position[k].Y + i - 1;
 
-					if (map[nypos][nxpos] != 0)
-						return;
-					map[nypos][nxpos] = 1;
+					if (map[block.ghostpiecePosition[k].Y][block.ghostpiecePosition[k].X] > 0)
+						continue;
+
+					map[block.ghostpiecePosition[k].Y][block.ghostpiecePosition[k].X] = 1;
 				}
 				return;
-			}
-		}
-	}
-}
-
-void Tetris::eraseGhostPiece()
-{
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = block.position[i].Y; j < BOARD_ROW; j++)
-		{
-			int xpos = block.position[i].X;
-			int ypos = j;
-			if (map[ypos][xpos] == 1)
-			{
-				map[ypos][xpos] = 0;
 			}
 		}
 	}
@@ -414,11 +301,13 @@ bool Tetris::eraseOneLine(int line)
 {
 	for (int i = 1; i < BOARD_COL - 1; i++)
 	{
-		if (map[line][i] > -1)
+		if (map[line][i] ==0 || map[line][i] == 1)
 		{
 			return false;
 		}
 	}
+
+	destroyBlock();
 
 	for (int i = line; i > 1; i--)
 	{
@@ -436,32 +325,28 @@ bool Tetris::eraseOneLine(int line)
 	return true;
 }
 
-vector<Point> Tetris::rotateMatrix(vector<Point> matrix)
+vector<Point> Tetris::rotatePoints(const vector<Point>& points)
 {
-	vector<Point> rotationMatrix(matrix.size());
-
-	int size = 2;
-	if (block.type == BLOCKTYPE::I)
-		size = 3;
-
+	vector<Point> rotationPoints(points.size());
 
 	for (int i = 0; i < 4; i++)
 	{
-		rotationMatrix[i].Y = matrix[i].X;
-		rotationMatrix[i].X = size - matrix[i].Y;
+		int size = block.type == BLOCKTYPE::I ? 3 : 2;
+		rotationPoints[i] = { points[i].X, size - points[i].Y };
 	}
 
-	return rotationMatrix;
+	return rotationPoints;
 }
 
-vector<Point> Tetris::moveMatrix(pair<int, int> move, vector<Point> matrix)
+vector<Point> Tetris::movePoints(const Point& move, const vector<Point>& points)
 {
+	vector<Point> rotationPoints(points.size());
 
 	for (int i = 0; i < 4; i++)
 	{
-		matrix[i].X += move.first;
-		matrix[i].Y += move.second;
+		rotationPoints[i] = points[i];
+		rotationPoints[i] += move;
 	}
 
-	return matrix;
+	return rotationPoints;
 }

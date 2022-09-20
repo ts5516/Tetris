@@ -1,3 +1,13 @@
 ﻿  Game.cpp
 C:\Users\action\Documents\workplace\Tetris_v1\Tetris_v1\Game.cpp(163,38): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Input.cpp
+  Screen.cpp
+C:\Users\action\Documents\workplace\Tetris_v1\Tetris_v1\Screen.cpp(100,21): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\action\Documents\workplace\Tetris_v1\Tetris_v1\Screen.cpp(100,32): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\action\Documents\workplace\Tetris_v1\Tetris_v1\Screen.cpp(113,24): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\action\Documents\workplace\Tetris_v1\Tetris_v1\Screen.cpp(113,32): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+  Tetris.cpp
+C:\Users\action\Documents\workplace\Tetris_v1\Tetris_v1\Tetris.cpp(100,12): warning C4244: '인수': 'time_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  WindowsConsole.cpp
+  코드를 생성하고 있습니다...
   Tetris_v1.vcxproj -> C:\Users\action\Documents\workplace\Tetris_v1\x64\Debug\Tetris_v1.exe

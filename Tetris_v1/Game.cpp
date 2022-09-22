@@ -16,10 +16,10 @@ Game::Game()
 	waitTime(clock()),
 	infoBoard()
 {	
-	gameInit();
+	init();
 }
 
-void Game::gameInit()
+void Game::init()
 {
 	screen.screenInitialize(tetris.getMap());
 
@@ -46,7 +46,7 @@ void Game::gameInit()
 	tetris.createBlock();
 }
 
-void Game::gameUpdate(KEYCODE key)
+void Game::update(KEYCODE key)
 {
 	
 	gameUpdateToken = keyInputProcess(key);
@@ -122,7 +122,7 @@ void Game::gameUpdate(KEYCODE key)
 	
 }
 
-void Game::gameRender()
+void Game::render()
 {
 	if (gameUpdateToken)
 	{

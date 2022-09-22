@@ -26,9 +26,9 @@ class Game
 public:
 	Game();
 
-	void gameInit();
-	void gameUpdate(KEYCODE key);
-	void gameRender();
+	void init();
+	void update(KEYCODE key);
+	void render();
 
 	KEYCODE getInput()
 	{

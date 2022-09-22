@@ -11,8 +11,8 @@ int main()
     {
         key = game.getInput();
 
-        game.gameUpdate(key);
+        game.update(key);
 
-        game.gameRender();
+        game.render();
     }
 }

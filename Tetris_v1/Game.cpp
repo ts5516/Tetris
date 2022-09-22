@@ -3,13 +3,13 @@
 Game::Game()
 	:screen(),
 	tetris(),
+	input(),
 	tetrisInfo(),
-	state(GAMESTATE::WAIT),
+	state(GAMESTATE::PLAYING),
 	gameUpdateToken(false),
 	speed(1),
 	score(0),
 	stringNowTime("00:00"),
-	nowTime(0),
 	LockDelayTime(clock()),
 	blockDownTime(clock()),
 	gameRunTime(clock()),
@@ -17,7 +17,6 @@ Game::Game()
 	infoBoard()
 {	
 	gameInit();
-	
 }
 
 void Game::gameInit()
@@ -37,18 +36,89 @@ void Game::gameInit()
 	infoBoard.push_back({ "" });
 	infoBoard.push_back({ "  속도 : " + to_string(speed)});
 
-	screen.screenPrintTextInfo(infoBoard);
-	screen.screenPrintNextBlock(tetris.getNextBlockBoard());
+	screen.screenPrintTextInfo(
+		{ 25,1 },
+		infoBoard);
+	screen.screenPrintNextBlock(
+		{ 5,3 },
+		tetris.getNextBlockBoard());
+
+	tetris.createBlock();
 }
 
 void Game::gameUpdate(KEYCODE key)
 {
 	
-	gameUpdateToken = gameUpdateToken || keyInputProcess(key);
+	gameUpdateToken = keyInputProcess(key);
 
 	gameInfoUpdate();
 
-	checkGameProgress();
+	int checkBlockPlace = tetris.blockTouchBottom();
+
+	switch (state)
+	{
+	case GAMESTATE::PLAYING:
+
+		if (checkBlockPlace != -1)
+		{
+			if (checkBlockPlace > 0 || key==KEYCODE::SPACE)
+			{
+				gameScoreUpdate(checkBlockPlace);
+				waitTime = clock();
+				state = GAMESTATE::WAIT;
+			}
+			else
+			{
+				LockDelayTime = clock();
+				state = GAMESTATE::LOCKDELAY;
+			}
+
+	 	}
+		else if (getNowTime() - blockDownTime > 1000 / speed)
+		{
+			blockDownTime = getNowTime();
+			keyInputProcess(KEYCODE::DOWN);
+		}
+
+		break;
+	case GAMESTATE::LOCKDELAY:
+
+		if (checkBlockPlace < 0)
+		{
+			state = GAMESTATE::PLAYING;
+		}
+		else if (getNowTime() - LockDelayTime > 500)
+		{
+			LockDelayTime = getNowTime();
+			state = GAMESTATE::WAIT;
+			
+		}
+
+		break;
+	case GAMESTATE::WAIT:
+
+		if (getNowTime() - waitTime > 200)
+		{
+			waitTime = getNowTime();
+			tetris.lockBlock();
+			
+			if (tetris.toppedOut())
+			{
+				state = GAMESTATE::GAMEOVER;
+				tetris.boardReset();
+				gameInfoUpdate();
+				
+			}
+			else
+			{
+				tetris.createBlock();
+				state = GAMESTATE::PLAYING;
+				blockDownTime = getNowTime();
+			}
+		}
+
+		break;
+	}
 	
 }
 
@@ -56,10 +126,22 @@ void Game::gameRender()
 {
 	if (gameUpdateToken)
 	{
-		tetris.drawGhostPiece();
-		screen.screenUpdate(tetris.getMap());
-		screen.screenPrintTextInfo(infoBoard);
-		screen.screenPrintNextBlock(tetris.getNextBlockBoard());
+		if (state == GAMESTATE::GAMEOVER)
+		{
+			screen.screenClear();
+			screen.screenUpdate(tetris.getMap());
+			screen.screenPrintTextInfo(
+				{ 3,3 }, infoBoard);
+		}
+		else
+		{
+			screen.screenUpdate(tetris.getMap());
+			screen.screenPrintTextInfo(
+				{ 25,1 }, infoBoard);
+			screen.screenPrintNextBlock(
+				{ 26,3 }, tetris.getNextBlockBoard());
+		}
+		
 		gameUpdateToken = false;
 	}
 }
@@ -74,7 +156,8 @@ bool Game::keyInputProcess(KEYCODE key)
 			state = GAMESTATE::PAUSE;
 	}
 
-	else if (state != GAMESTATE::PAUSE && state != GAMESTATE::WAIT)
+	else if (state == GAMESTATE::PLAYING ||
+		state == GAMESTATE::LOCKDELAY)
 	{
 		if (key == KEYCODE::UP)
 			return tetris.rotateBlockRight();
@@ -85,77 +168,19 @@ bool Game::keyInputProcess(KEYCODE key)
 		else if (key == KEYCODE::RIGHT)
 			return tetris.moveBlock({ 0,1 });
 		else if (key == KEYCODE::SPACE)
-		{
-			tetris.hardDrop();
+			return tetris.hardDrop();
+	}
 
-			int eraseLine = tetris.eraseLine();
-			if (eraseLine > 0)
-			{
-				gameScoreUpdate(eraseLine);
-			}
-			waitTime = clock();
-			state = GAMESTATE::WAIT;
-			
+	else if (state == GAMESTATE::GAMEOVER)
+	{
+		if (key == KEYCODE::ENTER)
+		{
+			state = GAMESTATE::END;
 			return true;
 		}
-			
-		// input function 
 	}
-
+	
 	return false;
-}
-
-void Game::checkGameProgress()
-{
-	nowTime = clock();
-
-	switch (state)
-	{
-	case GAMESTATE::PLAYING:
-		if (tetris.blockTouchBottom())
-		{
-			int eraseLine = tetris.eraseLine();
-			if(eraseLine > 0)
-			{
-				gameScoreUpdate(eraseLine);
-				waitTime = clock();
-				state = GAMESTATE::WAIT;
-			}
-			else
-			{
-				LockDelayTime = clock();
-				state = GAMESTATE::LOCKDELAY;
-			}
-			
-		}
-		else if(nowTime - blockDownTime >= 1000 / speed)
-		{
-			blockDownTime = nowTime;
-			keyInputProcess(KEYCODE::DOWN);
-		}
-		break;
-	case GAMESTATE::LOCKDELAY:
-		
-		if (!tetris.blockTouchBottom())
-		{
-			state = GAMESTATE::PLAYING;
-		}
-		else if (nowTime - LockDelayTime > 500)
-		{
-			waitTime = clock();
-			state = GAMESTATE::WAIT;
-			tetris.destroyBlock();
-		}
-		break;
-	case GAMESTATE::WAIT:
-		if (nowTime - waitTime > 100)
-		{
-			tetris.createBlock();
-			state = GAMESTATE::PLAYING;
-			blockDownTime = nowTime;
-		}
-		break;
-	}
 }
 
 void Game::gametimeAdd1()
@@ -169,8 +194,7 @@ void Game::gametimeAdd1()
 		if (stringNowTime[index] == '5')
 		{
 			stringNowTime[index] = '0';
-			index--;
-			index--;
+			index--; index--;
 
 			if (stringNowTime[index] == '9')
 			{
@@ -180,32 +204,23 @@ void Game::gametimeAdd1()
 				if (stringNowTime[index] == '5')
 					stringNowTime[index] = '0';
 				else
-				{
 					stringNowTime[index]++;
-				}
 			}
 			else
-			{
 				stringNowTime[index]++;
-			}
 		}
 		else
-		{
 			stringNowTime[index]++;
-		}
 	}
 	else
-	{
 		stringNowTime[index]++;
-	}
 }
 
 void Game::gameTimerUpdate()
 {
-	nowTime = clock();
-	if (nowTime - gameRunTime >= 1000)
+	if (getNowTime() - gameRunTime >= 1000)
 	{
-		gameRunTime = nowTime;
+		gameRunTime = getNowTime();
 		gametimeAdd1();
 		gameUpdateToken = true;
 	}
@@ -233,11 +248,19 @@ void Game::gameSpeedUpdate()
 
 void Game::gameInfoUpdate()
 {
-	gameTimerUpdate();
-	gameScoreUpdate(0);
-	gameSpeedUpdate();
+	if (state == GAMESTATE::GAMEOVER)
+	{
+		infoBoard[0] = { "게임오버되었습니다" };
+	}
+	else
+	{
+		gameTimerUpdate();
+		gameScoreUpdate(0);
+		gameSpeedUpdate();
+
+		infoBoard[7] = { "  시간 : " + stringNowTime };
+		infoBoard[9] = { "  점수 : " + to_string(score) };
+		infoBoard[11] = { "  속도 : " + to_string(speed) };
+	}
 	
-	infoBoard[7] = { "  시간 : " + stringNowTime };
-	infoBoard[9] = {"  점수 : " + to_string(score) };
-	infoBoard[11] = {"  속도 : " + to_string(speed) };
 }

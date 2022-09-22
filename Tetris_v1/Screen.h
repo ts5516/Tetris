@@ -22,24 +22,28 @@ public:
 	Screen();
 	~Screen();
 
+
 	void screenInitialize(vector<vector<int>> board);
 	void screenUpdate(vector<vector<int>> board);
 	void screenFlip();
-	void screenClean(vector<vector<int>> board);
+	void screenClear();
 
 
-	void screenPrintTextInfo(vector<vector<string>> infoboard);
-	void screenPrintNextBlock(vector<vector<int>> nextBlockBoard);
-
+	void screenPrintTextInfo(
+		pair<short, short> val,
+		vector<vector<string>> infoboard);
+	void screenPrintNextBlock(
+		pair<short, short> val,
+		vector<vector<int>> nextBlockBoard);
+	void printToken(
+		int bufferIndex, COORD pos,
+		int color, const string token);
 	void showCursor(bool showFlag, HANDLE out);
 
-
-	void printToken(int bufferIndex, COORD pos, int color, const string token);
 private:
-	// control screen buffer
 	HANDLE screenHandle[SCREEN_HANDLE_NUM]; 
 	DWORD screenDW;
-	int workBufferIndex = 0;
+	int workBufferIndex;
 };
 
 #endif

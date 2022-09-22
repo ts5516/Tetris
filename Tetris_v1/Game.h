@@ -13,11 +13,12 @@ using namespace std;
 
 enum GAMESTATE
 {
-	PLAYING = 0,
+	PLAYING,
 	PAUSE,
 	LOCKDELAY,
 	WAIT,
-	GAMEOVER
+	GAMEOVER,
+	END,
 };
 
 class Game
@@ -28,22 +29,33 @@ public:
 	void gameInit();
 	void gameUpdate(KEYCODE key);
 	void gameRender();
-	void gameExit();
-	void gameRestart();
 
+	KEYCODE getInput()
+	{
+		return input.getInput();
+	}
+
+	GAMESTATE getGamestate()
+	{
+		return state;
+	}
+
+private:
 
 	bool keyInputProcess(KEYCODE key);
-
-	void checkGameProgress();
 
 	void gameScoreUpdate(int eraseLine);
 	void gameTimerUpdate();
 	void gameSpeedUpdate();
 	void gameInfoUpdate();
 	void gametimeAdd1();
+
+	clock_t getNowTime() { return clock(); }
+
 private:
 	Screen screen;
 	Tetris tetris;
+	Input input;
 	TetrisInfo tetrisInfo;
 
 
@@ -55,7 +67,6 @@ private:
 	string stringNowTime;
 
 
-	clock_t nowTime;
 	clock_t LockDelayTime;
 	clock_t blockDownTime;
 	clock_t gameRunTime;

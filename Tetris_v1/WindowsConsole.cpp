@@ -1,19 +1,16 @@
-#include "Screen.h"
 #include "Game.h"
-#include "Input.h"
 
 using namespace std;
 
 void gameStart(const int& speed)
 {
     Game game;
-    Input input;
     KEYCODE key;
     
-    while (true)
+    while (game.getGamestate() != GAMESTATE::END)
     {
-        key = input.getInput();
-
+        key = game.getInput();
+        
         game.gameUpdate(key);
        
         game.gameRender();

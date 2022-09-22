@@ -3,6 +3,8 @@
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
+#include <algorithm>
+#include <random>
 #include "TetrisInfo.h"
 
 #ifndef TETRIS_H_
@@ -10,6 +12,8 @@
 
 using namespace std;
 
+
+//-------------------------------------------------------
 enum COLORTYPE
 {
 	NOCOLOR = 0,
@@ -22,10 +26,12 @@ enum COLORTYPE
 	YELLOW = 14
 };
 
+
 struct Point
 {
 	int Y;
 	int X;
+
 
 	Point()
 	{
@@ -36,18 +42,17 @@ struct Point
 		this->Y = Y;
 		this->X = X;
 	}
-
 	Point(pair<int, int> point)
 	{
 		this->Y = point.first;
 		this->X = point.second;
 	}
 
+
 	bool operator==(const Point& p) const
 	{
 		return X == p.X && Y == p.Y;
 	}
-
 	Point& operator+=(const Point& p)
 	{
 		this->Y += p.Y;
@@ -55,55 +60,52 @@ struct Point
 
 		return *this;
 	}
-
 	Point operator+(const Point& p)
 	{
 		return Point(this->Y + p.Y, this->X + p.X);
 	}
 };
 
+
 struct Tetromino
 {
 	BLOCKTYPE type;
 	vector<Point> position;
 	vector<Point> rotation;
-	vector<Point> ghostpiecePosition;
+	vector<Point> ghostPiecePos;
 	int color;
+
 
 	Tetromino()
 		:type(BLOCKTYPE::NONE),
 		position({ {0,0},{0,0},{0,0},{0,0} }),
 		rotation({ {0,0},{0,0},{0,0},{0,0} }),
-		ghostpiecePosition({ {0,0},{0,0},{0,0},{0,0} }),
+		ghostPiecePos({ {0,0},{0,0},{0,0},{0,0} }),
 		color(COLORTYPE::NOCOLOR)
 	{	}
-
 	Tetromino(BLOCKTYPE type, vector<Point> position,
 		vector<Point> rotation, int color)
 		:type(type),
 		position(position),
 		rotation(rotation),
-		ghostpiecePosition({ {0,0},{0,0},{0,0},{0,0} }),
+		ghostPiecePos({ {0,0},{0,0},{0,0},{0,0} }),
 		color(color)
 	{	}
+
 
 	bool operator==(const Tetromino& tet)
 	{
 		return this->type == tet.type &&
 			this->position == tet.position &&
 			this->rotation == tet.rotation &&
-			this->ghostpiecePosition == tet.ghostpiecePosition &&
+			this->ghostPiecePos == tet.ghostPiecePos &&
 			this->color == tet.color;
 	}
 };
 
+// enum and struct
+//--------------------------------------------------------
 
-const int BOARD_ROW = 22, BOARD_COL = 12;
-const int NEXTBLOCKBOARD_ROW = 4, NEXTBLOCKBOARD_COL = 6;
-
-
-const int TETROMINO_NUM = 7;
-const int TILE_NUM = 4;
 
 
 class Tetris
@@ -122,33 +124,45 @@ public:
 		return nextBlockBoard;
 	}
 
+	bool moveBlock(const Point& p);
+	bool rotateBlockRight();
+	bool hardDrop();
+
+
+	int blockTouchBottom();
+	bool toppedOut(); // game over logic
+	void boardReset();
+
+	void lockBlock();
+	void createBlock();
+	
+private:
+
+	Tetromino getRandomBlock(); // 7-bag generator
+
+	
+
 	bool existBlock(Tetromino _block)
 	{
 		return _block.type != BLOCKTYPE::NONE;
 	}
+	
+	void createNextBlock();
 
 	
-	bool canBlockPutThisPoints(vector<Point> points);
-	Tetromino canRotateBlock();
-
-	bool blockTouchBottom();
-
-	bool hardDrop();
+	void putBlockOnMap();
+	void eraseBlockOnMap();
+	void coloringMap(int color);
 
 	void drawGhostPiece();
+
 
 	int eraseLine();
 	bool eraseOneLine(int line);
 
-	bool moveBlock(const Point& p);
-	bool rotateBlockRight();
 
-	void eraseBlockPastTrace();
-
-	void destroyBlock();
-	void createBlock();
-	void createNextBlock();
-
+	bool canBlockPutThisPoints(vector<Point> points);
+	Tetromino canRotateBlock();
 
 	vector<Point> rotatePoints(const vector<Point>& points);
 	vector<Point> movePoints(const Point& move, const vector<Point>& points);
@@ -159,20 +173,15 @@ public:
 			block.position[0].X - block.rotation[0].X };
 	}
 
-	Tetromino getBlock()
-	{
-		if (!existBlock(block))
-			createBlock();
-
-		return block;
-	}
-
-	Tetromino getNextBlock()
-	{
-		return nextBlock;
-	}
-
 private:
+	const int BOARD_ROW = 22, BOARD_COL = 12;
+	const int NEXTBLOCKBOARD_ROW = 4, NEXTBLOCKBOARD_COL = 6;
+
+
+	const int TETROMINO_NUM = 7;
+	const int TILE_NUM = 4;
+
+
 	TetrisInfo tetrisInfo;
 
 	const Tetromino I_;
@@ -182,7 +191,11 @@ private:
 	const Tetromino S_;
 	const Tetromino T_;
 	const Tetromino Z_;
-	const Tetromino tetrominos[TETROMINO_NUM] = { I_, L_, J_, O_, S_, T_, Z_ };
+	const vector<Tetromino> tetrominos 
+		= { I_, L_, J_, O_, S_, T_, Z_ };
+
+
+	vector<Tetromino> _7Bag;
 
 	vector<vector<int>> map;
 	vector<vector<int>> nextBlockBoard;

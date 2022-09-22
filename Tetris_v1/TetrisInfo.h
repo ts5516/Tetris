@@ -50,7 +50,8 @@ public:
 		return lineClearType[earnScoreIndex];
 	}
 
-	vector<pair<int, int>> getSRSwallKickData(BLOCKTYPE type, int rotationState)
+	vector<pair<int, int>> getSRSwallKickData(
+		BLOCKTYPE type, int rotationState)
 	{
 		if (type == BLOCKTYPE::I)
 			return wallKick_I_SRS[rotationState];
@@ -79,12 +80,6 @@ private:
 		600				// t-spin triple
 	};
 
-	//-----------------------------------------------------
-	//-----------------------------------------------------
-	// Random Generator data
-	// 
-	// 
-	// 
 	//-----------------------------------------------------
 	//-----------------------------------------------------
 	// wallKick  rotation test data_SRS 

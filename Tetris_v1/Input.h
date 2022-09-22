@@ -24,6 +24,8 @@ public:
 
 	KEYCODE getInput();
 private:
+	const int INPUTSPEED = 100;
+
 	clock_t inputTime;
 };
 #endif // !INPUT_H_

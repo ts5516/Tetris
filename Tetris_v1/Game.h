@@ -73,5 +73,9 @@ private:
 	clock_t waitTime;
 
 	vector<vector<string>> infoBoard;
+
+	const int waitSecond = 200;
+	const int oneSecond = 1000;
+	const int lockdealySecond = 500;
 };
 #endif // !GAME_H_

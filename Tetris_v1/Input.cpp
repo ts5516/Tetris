@@ -2,7 +2,7 @@
 
 KEYCODE Input::getInput()
 {
-	if (clock() - inputTime >= 120)
+	if (clock() - inputTime >= INPUTSPEED)
 	{
 		inputTime = clock();
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)

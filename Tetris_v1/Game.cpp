@@ -74,7 +74,7 @@ void Game::gameUpdate(KEYCODE key)
 			}
 
 	 	}
-		else if (getNowTime() - blockDownTime > 1000 / speed)
+		else if (getNowTime() - blockDownTime > oneSecond / speed)
 		{
 			blockDownTime = getNowTime();
 			keyInputProcess(KEYCODE::DOWN);
@@ -87,7 +87,7 @@ void Game::gameUpdate(KEYCODE key)
 		{
 			state = GAMESTATE::PLAYING;
 		}
-		else if (getNowTime() - LockDelayTime > 500)
+		else if (getNowTime() - LockDelayTime > lockdealySecond)
 		{
 			LockDelayTime = getNowTime();
 			state = GAMESTATE::WAIT;
@@ -97,7 +97,7 @@ void Game::gameUpdate(KEYCODE key)
 		break;
 	case GAMESTATE::WAIT:
 
-		if (getNowTime() - waitTime > 200)
+		if (getNowTime() - waitTime > waitSecond)
 		{
 			waitTime = getNowTime();
 			tetris.lockBlock();
@@ -218,7 +218,7 @@ void Game::gametimeAdd1()
 
 void Game::gameTimerUpdate()
 {
-	if (getNowTime() - gameRunTime >= 1000)
+	if (getNowTime() - gameRunTime > oneSecond)
 	{
 		gameRunTime = getNowTime();
 		gametimeAdd1();

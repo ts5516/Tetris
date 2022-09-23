@@ -22,7 +22,7 @@ Screen::~Screen()
 		CloseHandle(screenHandle[i]);
 }
 
-void Screen::screenInitialize(vector<vector<int>> board)
+void Screen::screenInitialize(pair<short, short> val, vector<vector<int>> board)
 {
 	for (short i = 0; i < board.size(); i++)
 	{
@@ -30,7 +30,7 @@ void Screen::screenInitialize(vector<vector<int>> board)
 		{
 			if (board[i][j] == -1)
 			{
-				COORD pos = { j * 2, i };
+				COORD pos = { j * 2+ val.first, i+ val.second };
 
 				printToken(
 					workBufferIndex, pos,

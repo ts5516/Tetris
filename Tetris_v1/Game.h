@@ -4,7 +4,6 @@
 #include "Screen.h"
 #include "Tetris.h"
 #include "Input.h"
-
 #ifndef GAME_H_
 #define GAME_H_
 
@@ -21,12 +20,32 @@ enum GAMESTATE
 	END,
 };
 
+struct OBJECT_ELEMENT {
+	Tetris object;
+
+	GAMESTATE state;
+	bool gameUpdateToken;
+
+	clock_t LockDelayTime;
+	clock_t blockDownTime;
+	clock_t gameRunTime;
+	clock_t waitTime;
+
+	TetrisInfo tetrisInfo;
+	int speed;
+	int score;
+
+	string stringNowTime;
+	vector<vector<string>> infoBoard;
+};
+
 class Game
 {
 public:
 	Game();
 
 	void init();
+	void initOE(OBJECT_ELEMENT& one);
 	void update(KEYCODE key);
 	void render();
 
@@ -34,10 +53,9 @@ public:
 	{
 		return input.getInput();
 	}
-
 	GAMESTATE getGamestate()
 	{
-		return state;
+		return player.state;
 	}
 
 private:
@@ -54,25 +72,10 @@ private:
 
 private:
 	Screen screen;
-	Tetris tetris;
 	Input input;
-	TetrisInfo tetrisInfo;
 
-
-	GAMESTATE state;
-	bool gameUpdateToken;
-
-	int speed;
-	int score;
-	string stringNowTime;
-
-
-	clock_t LockDelayTime;
-	clock_t blockDownTime;
-	clock_t gameRunTime;
-	clock_t waitTime;
-
-	vector<vector<string>> infoBoard;
+	OBJECT_ELEMENT player;
+	OBJECT_ELEMENT cpu;
 
 	const int waitSecond = 200;
 	const int oneSecond = 1000;

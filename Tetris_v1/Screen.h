@@ -23,7 +23,7 @@ public:
 	~Screen();
 
 
-	void screenInitialize(vector<vector<int>> board);
+	void screenInitialize(pair<short, short> val, vector<vector<int>> board);
 	void screenUpdate(vector<vector<int>> board);
 	void screenFlip();
 	void screenClear();

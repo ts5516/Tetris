@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <random>
 #include "TetrisInfo.h"
-
+#include "CPU.h"
 #ifndef TETRIS_H_
 #define TETRIS_H_
 
@@ -108,7 +108,7 @@ struct Tetromino
 
 
 
-class Tetris
+class Tetris : public CPU
 {
 public:
 	Tetris();

@@ -66,8 +66,10 @@ private:
 	bool keyInputProcess(KEYCODE key);
 	template<typename T>
 	void gameScoreUpdate(OBJECT_ELEMENT<T>& oe,int eraseLine);
-	void gameTimerUpdate();
-	void gameSpeedUpdate();
+	template<typename T>
+	void gameTimerUpdate(OBJECT_ELEMENT<T>& oe);
+	template<typename T>
+	void gameSpeedUpdate(OBJECT_ELEMENT<T>& oe);
 	void gameInfoUpdate();
 	void gametimeAdd1(string& str);
 
@@ -81,6 +83,8 @@ private:
 	OBJECT_ELEMENT<CPU> cpu;
 
 	clock_t cpuExcuteTime;
+	int cpuRotateNum;
+	int cpuMoveNum;
 
 	const int waitSecond = 200;
 	const int oneSecond = 1000;

@@ -1,13 +1,23 @@
 #pragma once
 #include <iostream>
+#include <numeric>
+#include <math.h>
 #include "Tetris.h"
 class CPU : public Tetris 
 {
 public:
 	CPU();
-	pair<int, int> calDestination();
+	void initialize();
+
+	void calDestination();
+	int moveLeft_untilEnd();
+
+	int getDirection() { return direction; }
+	int getRotateCount() { return rotateCount; }
+	int getmoveCount() { return moveCount; }
 private:
-	pair<int, int> destination;
+	int maxWeight;
 	int rotateCount;
-	int MoveCount;
+	int moveCount;
+	int direction;
 };

@@ -8,7 +8,10 @@
 #include "TetrisInfo.h"
 #ifndef TETRIS_H_
 #define TETRIS_H_
-
+#define BOARD_ROW 22 
+#define BOARD_COL 12
+#define NEXTBLOCKBOARD_ROW 4
+#define NEXTBLOCKBOARD_COL 6
 using namespace std;
 
 
@@ -122,6 +125,7 @@ public:
 	{
 		return nextBlockBoard;
 	}
+	Tetromino getBlock() { return block; }
 
 	bool moveBlock(const Point& p);
 	bool rotateBlockRight();
@@ -135,6 +139,9 @@ public:
 	void lockBlock();
 	void createBlock();
 	
+	void putBlockOnMap();
+	void eraseBlockOnMap();
+
 private:
 
 	Tetromino getRandomBlock(); // 7-bag generator
@@ -148,9 +155,6 @@ private:
 	
 	void createNextBlock();
 
-	
-	void putBlockOnMap();
-	void eraseBlockOnMap();
 	void coloringMap(int color);
 
 	void drawGhostPiece();
@@ -173,10 +177,6 @@ private:
 	}
 
 private:
-	const int BOARD_ROW = 22, BOARD_COL = 12;
-	const int NEXTBLOCKBOARD_ROW = 4, NEXTBLOCKBOARD_COL = 6;
-
-
 	const int TETROMINO_NUM = 7;
 	const int TILE_NUM = 4;
 

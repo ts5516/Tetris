@@ -1,6 +1,13 @@
 #pragma once
 #include <iostream>
-class CPU {
-	void calDestination();
+#include "Tetris.h"
+class CPU : public Tetris 
+{
+public:
+	CPU();
+	pair<int, int> calDestination();
 private:
+	pair<int, int> destination;
+	int rotateCount;
+	int MoveCount;
 };

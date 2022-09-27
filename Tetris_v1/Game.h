@@ -4,6 +4,7 @@
 #include "Screen.h"
 #include "Tetris.h"
 #include "Input.h"
+#include "CPU.h"
 #ifndef GAME_H_
 #define GAME_H_
 
@@ -20,8 +21,9 @@ enum GAMESTATE
 	END,
 };
 
+template<typename T>
 struct OBJECT_ELEMENT {
-	Tetris object;
+	T tetris;
 
 	GAMESTATE state;
 	bool gameUpdateToken;
@@ -45,7 +47,8 @@ public:
 	Game();
 
 	void init();
-	void initOE(OBJECT_ELEMENT& one);
+	template<typename T>
+	void initOE(OBJECT_ELEMENT<T>& oe);
 	void update(KEYCODE key);
 	void render();
 
@@ -61,12 +64,12 @@ public:
 private:
 
 	bool keyInputProcess(KEYCODE key);
-
-	void gameScoreUpdate(int eraseLine);
+	template<typename T>
+	void gameScoreUpdate(OBJECT_ELEMENT<T>& oe,int eraseLine);
 	void gameTimerUpdate();
 	void gameSpeedUpdate();
 	void gameInfoUpdate();
-	void gametimeAdd1();
+	void gametimeAdd1(string& str);
 
 	clock_t getNowTime() { return clock(); }
 
@@ -74,11 +77,14 @@ private:
 	Screen screen;
 	Input input;
 
-	OBJECT_ELEMENT player;
-	OBJECT_ELEMENT cpu;
+	OBJECT_ELEMENT<Tetris> player;
+	OBJECT_ELEMENT<CPU> cpu;
+
+	clock_t cpuExcuteTime;
 
 	const int waitSecond = 200;
 	const int oneSecond = 1000;
 	const int lockdealySecond = 500;
 };
 #endif // !GAME_H_
+

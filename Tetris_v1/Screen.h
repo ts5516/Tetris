@@ -24,7 +24,7 @@ public:
 
 
 	void screenInitialize(pair<short, short> val, vector<vector<int>> board);
-	void screenUpdate(vector<vector<int>> board);
+	void screenUpdate(pair<short, short> val, vector<vector<int>> board);
 	void screenFlip();
 	void screenClear();
 

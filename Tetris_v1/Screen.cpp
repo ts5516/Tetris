@@ -43,13 +43,13 @@ void Screen::screenInitialize(pair<short, short> val, vector<vector<int>> board)
 	}
 }
 
-void Screen::screenUpdate(vector<vector<int>> board)
+void Screen::screenUpdate(pair<short, short> val, vector<vector<int>> board)
 {
 	for (short i = 0; i < board.size(); i++)
 	{
 		for (short j = 0; j < board[0].size(); j++)
 		{
-			COORD pos = { j * 2, i };
+			COORD pos = { val.first+ j * 2, val.second + i };
 			int tile = board[i][j];
 
 			if (tile == 1)
@@ -78,8 +78,6 @@ void Screen::screenUpdate(vector<vector<int>> board)
 			}
 		}
 	}
-
-	screenFlip();
 }
 
 void Screen::screenFlip()
@@ -95,10 +93,6 @@ void Screen::screenClear()
 {
 	FillConsoleOutputCharacter(
 		screenHandle[workBufferIndex],
-		' ', 80 * 40,
-		{ 0,0 }, &screenDW);
-	FillConsoleOutputCharacter(
-		screenHandle[1-workBufferIndex],
 		' ', 80 * 40,
 		{ 0,0 }, &screenDW);
 }

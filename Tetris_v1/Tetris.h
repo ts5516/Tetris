@@ -12,6 +12,8 @@
 #define BOARD_COL 12
 #define NEXTBLOCKBOARD_ROW 4
 #define NEXTBLOCKBOARD_COL 6
+#define TETROMINO_NUM 7
+#define TILE_NUM 4
 using namespace std;
 
 
@@ -137,32 +139,30 @@ public:
 	void boardReset();
 
 	void lockBlock();
-	void createBlock();
+	virtual void createBlock();
 	
 	void putBlockOnMap();
 	void eraseBlockOnMap();
-
-private:
-
-	Tetromino getRandomBlock(); // 7-bag generator
-
-	
 
 	bool existBlock(Tetromino _block)
 	{
 		return _block.type != BLOCKTYPE::NONE;
 	}
-	
+
 	void createNextBlock();
+
+	Tetromino* getBlockAddress() { return &block; }
+	Tetromino* getNextBlockAddress() { return &nextBlock; }
+private:
+
+	Tetromino getRandomBlock(); // 7-bag generator
 
 	void coloringMap(int color);
 
 	void drawGhostPiece();
 
-
 	int eraseLine();
 	bool eraseOneLine(int line);
-
 
 	bool canBlockPutThisPoints(vector<Point> points);
 	Tetromino canRotateBlock();
@@ -177,10 +177,6 @@ private:
 	}
 
 private:
-	const int TETROMINO_NUM = 7;
-	const int TILE_NUM = 4;
-
-
 	TetrisInfo tetrisInfo;
 
 	const Tetromino I_;

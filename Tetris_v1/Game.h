@@ -45,11 +45,14 @@ class Game
 {
 public:
 	Game();
-
-	void init();
 	template<typename T>
 	void initOE(OBJECT_ELEMENT<T>& oe);
+	void init();
+
+	template<typename T>
+	void updateTetris(OBJECT_ELEMENT<T>& oe, KEYCODE key);
 	void update(KEYCODE key);
+
 	void render();
 
 	KEYCODE getInput()
@@ -70,7 +73,8 @@ private:
 	void gameTimerUpdate(OBJECT_ELEMENT<T>& oe);
 	template<typename T>
 	void gameSpeedUpdate(OBJECT_ELEMENT<T>& oe);
-	void gameInfoUpdate();
+	template<typename T>
+	void gameInfoUpdate(OBJECT_ELEMENT<T>& oe);
 	void gametimeAdd1(string& str);
 
 	clock_t getNowTime() { return clock(); }

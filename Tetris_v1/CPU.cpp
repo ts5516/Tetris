@@ -29,29 +29,11 @@ void CPU::calDestination()
 				tempDestination.push_back({ ghostY,ghostX });
 			}
 
-			int dx[4] = { 0,1,-1 };
-			int dy[4] = { 1,0,0 };
-			int tempResult = 0;
-			for (int i = 0; i < 4; i++) {
-				int ghostX = getBlock().ghostPiecePos[i].X;
-				int ghostY = getBlock().ghostPiecePos[i].Y;
-				for (int j = 0; j < 3; j++) {
-					pair<int, int> tempPos = { ghostY + dy[j],ghostX + dx[j] };
-					auto iter = find_if(tempDestination.begin(), tempDestination.end(), [tempPos](const pair<int, int>& a) {
-						if (tempPos.first == a.first && tempPos.second == a.second)
-							return true;
-						return false;
-						});
-					if (iter == tempDestination.end()) {
-						tempResult += tempTable[tempPos.first][tempPos.second];
-					}
-				}
-			}
+			int result = calWeightSum(tempTable, tempDestination);
 
-			if (tempResult > maxWeight) {
-				maxWeight = tempResult;
+			if (result > maxWeight) {
+				maxWeight = result;
 				rotateCount = k;
-				destination = tempDestination;
 				destinationX = tempDestination.front().second;
 			}
 			tempDestination.clear();
@@ -72,10 +54,8 @@ void CPU::calDestination()
 void CPU::initialize()
 {
 	rotateCount = 0;
-	count = 0;
 	destinationX = 0;
 	maxWeight = INT_MIN;
-	destination.clear();
 }
 
 void CPU::moveLeft_untilEnd(int& mc)
@@ -95,7 +75,6 @@ void CPU::DoAction()
 		rotateCount--;
 	}
 	else {
-		bool shouldMove = false;
 		int ghostX = getBlock().ghostPiecePos[0].X;
 		if (ghostX == destinationX) {
 			hardDrop();
@@ -132,4 +111,52 @@ vector<vector<int>> CPU::makeTable()
 	table[21].assign(12,21);
 	putBlockOnMap();
 	return table;
+}
+
+int CPU::calWeightSum(vector<vector<int>> table ,vector<pair<int, int>> arr)
+{
+	int result = 0;
+	int dx[3] = { 0,1,-1 };
+	int dy[3] = { 1,0,0 };
+
+	for (int i = 0; i < 4; i++) {
+		int ghostX = getBlock().ghostPiecePos[i].X;
+		int ghostY = getBlock().ghostPiecePos[i].Y;
+		for (int j = 0; j < 3; j++) {
+			pair<int, int> tempPos = { ghostY + dy[j],ghostX + dx[j] };
+			auto iter = find_if(arr.begin(), arr.end(), [tempPos](const pair<int, int>& a) {
+				if (tempPos.first == a.first && tempPos.second == a.second)
+					return true;
+				return false;
+				});
+			if (iter == arr.end()) {
+				if (tempPos.first >= 0 && tempPos.second >= 0)
+					result += table[tempPos.first][tempPos.second];
+			}
+		}
+	}
+
+	return result;
+}
+
+void CPU::createBlock() {
+	if (existBlock(*getBlockAddress()))
+		return;
+
+	else if (!existBlock(*getNextBlockAddress()))
+	{
+		createNextBlock();
+	}
+
+	*getBlockAddress() = *getNextBlockAddress();
+	createNextBlock();
+
+	for (int i = 0; i < TILE_NUM; i++)
+	{
+		getBlockAddress()->position[i].X += BOARD_COL / 2 - 1;
+		getBlockAddress()->position[i].Y += 1;
+	}
+
+	putBlockOnMap();
+	calDestination();
 }

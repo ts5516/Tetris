@@ -30,8 +30,6 @@ void Game::init()
 	cpu.tetris.createBlock();
 
 	cpu.tetris.calDestination();
-	cpuRotateNum = cpu.tetris.getRotateCount();
-	cpuMoveNum = cpu.tetris.getmoveCount();
 }
 
 template<typename T>
@@ -69,24 +67,6 @@ void Game::update(KEYCODE key)
 {
 	
 	player.gameUpdateToken = keyInputProcess(key);
-
-	if (getNowTime() - cpuExcuteTime >= 200) {
-		if (cpuRotateNum > 0) {
-			cpu.tetris.rotateBlockRight();
-			cpuRotateNum--;
-			cpu.gameUpdateToken = true;
-		}
-		else if (cpuMoveNum > 0) {
-			cpu.tetris.moveBlock({ 0,cpu.tetris.getDirection() });
-			cpuMoveNum--;
-			cpu.gameUpdateToken = true;
-		}
-		else {
-			cpu.tetris.hardDrop();
-			cpu.gameUpdateToken = true;
-		}
-		cpuExcuteTime = getNowTime();
-	}
 
 	gameInfoUpdate();
 
@@ -158,6 +138,12 @@ void Game::update(KEYCODE key)
 		break;
 	}
 
+	if (getNowTime() - cpuExcuteTime >= 200) {
+		cpu.tetris.DoAction();
+		cpu.gameUpdateToken = true;
+		cpuExcuteTime = getNowTime();
+	}
+
 	switch (cpu.state)
 	{
 	case GAMESTATE::PLAYING:
@@ -217,8 +203,6 @@ void Game::update(KEYCODE key)
 			{
 				cpu.tetris.createBlock();
 				cpu.tetris.calDestination();
-				cpuRotateNum = cpu.tetris.getRotateCount();
-				cpuMoveNum = cpu.tetris.getmoveCount();
 				cpu.state = GAMESTATE::PLAYING;
 				cpu.blockDownTime = getNowTime();
 			}

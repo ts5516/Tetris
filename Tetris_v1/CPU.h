@@ -2,6 +2,7 @@
 #include <iostream>
 #include <numeric>
 #include <math.h>
+#include <algorithm>
 #include "Tetris.h"
 class CPU : public Tetris 
 {
@@ -10,14 +11,13 @@ public:
 	void initialize();
 
 	void calDestination();
-	int moveLeft_untilEnd();
-
-	int getDirection() { return direction; }
-	int getRotateCount() { return rotateCount; }
-	int getmoveCount() { return moveCount; }
+	void moveLeft_untilEnd(int& mc);
+	void DoAction();
+	vector<vector<int>> makeTable();
 private:
+	int destinationX;
+	vector<pair<int, int>> destination;
 	int maxWeight;
 	int rotateCount;
-	int moveCount;
-	int direction;
+	int count;
 };

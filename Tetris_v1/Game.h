@@ -83,8 +83,6 @@ private:
 	OBJECT_ELEMENT<CPU> cpu;
 
 	clock_t cpuExcuteTime;
-	int cpuRotateNum;
-	int cpuMoveNum;
 
 	const int waitSecond = 200;
 	const int oneSecond = 1000;

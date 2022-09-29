@@ -6,8 +6,9 @@ Game::Game()
 {
 	initOE<Tetris>(player);
 	initOE<CPU>(cpu);
+	player.objectName = "player";
+	cpu.objectName = "cpu";
 	init();
-	cpuExcuteTime = clock();
 }
 
 void Game::init()
@@ -26,6 +27,9 @@ void Game::init()
 	screen.screenPrintNextBlock(
 		{ 77,3 },
 		cpu.tetris.getNextBlockBoard());
+
+	cpuExcuteTime = clock();
+
 	player.tetris.createBlock();
 	cpu.tetris.createBlock();
 }
@@ -128,7 +132,7 @@ void Game::update(KEYCODE key)
 	
 	player.gameUpdateToken = keyInputProcess(key);
 
-	if (getNowTime() - cpuExcuteTime >= 200) {
+	if (getNowTime() - cpuExcuteTime >= 200 && cpu.state != GAMESTATE::GAMEOVER && cpu.state != GAMESTATE::PAUSE) {
 		cpu.tetris.DoAction();
 		cpu.gameUpdateToken = true;
 		cpuExcuteTime = getNowTime();
@@ -150,6 +154,7 @@ void Game::render()
 			screen.screenUpdate({ 0,0 },player.tetris.getMap());
 			screen.screenPrintTextInfo(
 				{ 3,3 }, player.infoBoard);
+			screen.screenPrintResult({ 15, 23 }, ResultBoard);
 		}
 		else
 		{
@@ -164,6 +169,7 @@ void Game::render()
 			screen.screenUpdate({ 50,0 },cpu.tetris.getMap());
 			screen.screenPrintTextInfo(
 				{ 53,3 }, cpu.infoBoard);
+			screen.screenPrintResult({ 15, 23 }, ResultBoard);
 		}
 		else
 		{
@@ -183,10 +189,14 @@ bool Game::keyInputProcess(KEYCODE key)
 {
 	if (key == KEYCODE::ESC)
 	{
-		if (player.state == GAMESTATE::PAUSE)
+		if (player.state == GAMESTATE::PAUSE) {
 			player.state = GAMESTATE::PLAYING;
-		else if (player.state == GAMESTATE::PLAYING)
+			cpu.state = GAMESTATE::PLAYING;
+		}
+		else if (player.state == GAMESTATE::PLAYING) {
 			player.state = GAMESTATE::PAUSE;
+			cpu.state = GAMESTATE::PAUSE;
+		}
 	}
 
 	else if (player.state == GAMESTATE::PLAYING ||
@@ -286,6 +296,19 @@ void Game::gameInfoUpdate(OBJECT_ELEMENT<T>& oe)
 	if (oe.state == GAMESTATE::GAMEOVER)
 	{
 		oe.infoBoard[0] = { "게임오버되었습니다" };
+		oe.gameUpdateToken = true;
+
+		if (ResultBoard.empty()) {
+			if (oe.objectName == player.objectName) {
+				ResultBoard.push_back("                    CPU 승리!                         ");
+				ResultBoard.push_back("       엔터키로 게임을 종료하실 수 있습니다.          ");
+			}
+			else if (oe.objectName == cpu.objectName) {
+				ResultBoard.push_back("                  플레이어 승리!                      ");
+				ResultBoard.push_back("게임 오버가 되면 엔터키로 게임을 종료하실 수 있습니다.");
+			}
+		}
+
 	}
 	else
 	{

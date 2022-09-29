@@ -119,6 +119,15 @@ void Screen::screenPrintTextInfo(
 	}
 }
 
+void Screen::screenPrintResult(pair<short, short> val, vector<string> resultBoard)
+{
+	for (int i = 0; i < resultBoard.size(); i++) {
+		COORD pos = { val.first,val.second + i };
+		printToken(workBufferIndex, pos, 7, resultBoard[i]);
+		printToken(1- workBufferIndex, pos, 7, resultBoard[i]);
+	}
+}
+
 void Screen::screenPrintNextBlock(
 	pair<short, short> val,
 	vector<vector<int>> nextBlockBoard)

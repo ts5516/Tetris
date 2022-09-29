@@ -24,6 +24,7 @@ enum GAMESTATE
 template<typename T>
 struct OBJECT_ELEMENT {
 	T tetris;
+	string objectName;
 
 	GAMESTATE state;
 	bool gameUpdateToken;
@@ -87,7 +88,8 @@ private:
 	OBJECT_ELEMENT<CPU> cpu;
 
 	clock_t cpuExcuteTime;
-
+	
+	vector<string> ResultBoard;
 	const int waitSecond = 200;
 	const int oneSecond = 1000;
 	const int lockdealySecond = 500;

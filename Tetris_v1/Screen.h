@@ -32,6 +32,7 @@ public:
 	void screenPrintTextInfo(
 		pair<short, short> val,
 		vector<vector<string>> infoboard);
+	void screenPrintResult(pair<short, short> val, vector<string> resultBoard);
 	void screenPrintNextBlock(
 		pair<short, short> val,
 		vector<vector<int>> nextBlockBoard);

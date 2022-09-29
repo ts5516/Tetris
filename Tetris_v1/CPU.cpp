@@ -8,7 +8,6 @@ CPU::CPU()
 void CPU::calDestination()
 {
 	initialize();
-	vector<int> emptyArr(getMap()[0].size(), 0);
 	vector<vector<int>> table = makeTable();
 	int tempMoveCount = 0;
 	moveLeft_untilEnd(tempMoveCount);
